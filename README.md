@@ -4,12 +4,14 @@ Welcome to **Satisfying Canvas Effects**, a collection of interactive and visual
 
 This project is designed to showcase a variety of satisfying animations that users can interact with, making it a perfect addition to a portfolio or an interactive web experience.
 
+Live demo: [Satisfying Canvas Effects](https://vikumkarunathilake.github.io/satisfying-canvas-effects/)
+
 ## Installation
 
-To set up the project locally:
+To view and run the project locally:
 
 1. Clone the repository:
 
    ```bash
    git clone https://github.com/your-username/satisfying-canvas-effects.git
-   ```
+    ```
