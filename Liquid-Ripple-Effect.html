@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Liquid Ripples</title>
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #0e0e0e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="ripplesCanvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('ripplesCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    const ripples = [];
+
+    class Ripple {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.radius = 0;
+        this.maxRadius = Math.min(canvas.width, canvas.height) * 0.4;
+        this.alpha = 1;
+        this.color = `rgba(255, 255, 255, ${this.alpha})`;
+      }
+
+      update() {
+        this.radius += 4; // speed of the ripple
+        if (this.radius >= this.maxRadius) {
+          this.alpha -= 0.01; // fade out effect
+        }
+        this.color = `rgba(255, 255, 255, ${this.alpha})`; // Adjust transparency
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.closePath();
+      }
+    }
+
+    canvas.addEventListener('click', (e) => {
+      const x = e.clientX;
+      const y = e.clientY;
+      ripples.push(new Ripple(x, y));
+    });
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw all ripples
+      for (let i = ripples.length - 1; i >= 0; i--) {
+        const ripple = ripples[i];
+        ripple.update();
+        ripple.draw();
+        
+        // Remove ripple if fully faded out
+        if (ripple.alpha <= 0) {
+          ripples.splice(i, 1);
+        }
+      }
+      
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+</html>

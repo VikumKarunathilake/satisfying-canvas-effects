@@ -1,0 +1,383 @@
+<html lang="en"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Flowfield Particles — Interactive Canvas</title>
+    <style>
+      :root {
+        --bg: #050814;
+        --card: rgba(255, 255, 255, 0.06);
+        --accent: #8be9fd;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        background: var(--bg);
+        color: #e6eef8;
+        font-family: Inter, ui-sans-serif, system-ui, Segoe UI, Roboto,
+          Helvetica, Arial;
+      }
+      canvas {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+      }
+      .ui {
+        position: fixed;
+        right: 18px;
+        top: 18px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: var(--card);
+        backdrop-filter: blur(6px);
+        box-shadow: 0 6px 30px rgba(3, 6, 23, 0.6);
+        font-size: 13px;
+        line-height: 1.25;
+        max-width: 300px;
+      }
+      .ui b {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+      .hint {
+        opacity: 0.8;
+        font-size: 12px;
+        margin-top: 8px;
+      }
+      .footer {
+        position: fixed;
+        left: 18px;
+        bottom: 18px;
+        padding: 8px 12px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.03);
+        font-size: 12px;
+      }
+      a {
+        color: var(--accent);
+      }
+      .stat {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="c" width="565" height="873" style="width: 565px; height: 873px;"></canvas>
+    <div class="ui">
+      <b>Flowfield Particles</b>
+      <div class="stat"><span>Particles:</span><span id="pc">123</span></div>
+      <div class="stat"><span>FPS:</span><span id="fps">60</span></div>
+      <div class="hint">
+        Controls: <code>Mouse / Touch</code> to attract, <code>Drag</code> to
+        push. <code>+</code>/<code>-</code> to change count.
+        <code>Space</code> clears trails.
+      </div>
+    </div>
+    <div class="footer">
+      Made with <span class="dot"></span> Canvas — enjoy the motion ✨
+    </div>
+
+    <script>
+      (() => {
+        const canvas = document.getElementById("c");
+        const ctx = canvas.getContext("2d", { alpha: true });
+        let dpr = Math.max(1, window.devicePixelRatio || 1);
+
+        function resize() {
+          dpr = Math.max(1, window.devicePixelRatio || 1);
+          canvas.width = Math.floor(innerWidth * dpr);
+          canvas.height = Math.floor(innerHeight * dpr);
+          canvas.style.width = innerWidth + "px";
+          canvas.style.height = innerHeight + "px";
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        addEventListener("resize", resize);
+        resize();
+
+        // Parameters
+        const params = {
+          count: Math.min(1400, Math.floor((innerWidth * innerHeight) / 4000)),
+          speed: 0.8,
+          randomness: 0.9,
+          hueBase: Math.random() * 360,
+          trailAlpha: 0.08,
+          fieldScale: 0.0026,
+          particleSize: 1.2,
+        };
+
+        // particles
+        class Particle {
+          constructor() {
+            this.reset(true);
+          }
+          reset(init = false) {
+            this.x = Math.random() * innerWidth;
+            this.y = Math.random() * innerHeight;
+            const a = Math.random() * Math.PI * 2;
+            const m = Math.random() * 0.5 + 0.5;
+            this.vx = Math.cos(a) * m;
+            this.vy = Math.sin(a) * m;
+            this.life = 0;
+            this.maxLife = 9999;
+            this.size = (Math.random() * 0.7 + 0.6) * params.particleSize;
+            this.h =
+              (params.hueBase +
+                Math.random() * 60 -
+                30 +
+                (this.y / innerHeight) * 40) %
+              360;
+            if (!init)
+              (this.x = Math.random() * innerWidth),
+                (this.y = Math.random() * innerHeight);
+          }
+          step(angle, attractor) {
+            // apply flowfield
+            const f = 0.018 + params.speed * 0.01;
+            this.vx += Math.cos(angle) * f * params.randomness;
+            this.vy += Math.sin(angle) * f * params.randomness;
+
+            // apply attractor/repel
+            if (attractor.distance < 200) {
+              const ax = attractor.x - this.x;
+              const ay = attractor.y - this.y;
+              const dist = Math.max(20, Math.sqrt(ax * ax + ay * ay));
+              const force = (200 - dist) / 200;
+              this.vx += (ax / dist) * force * 0.6;
+              this.vy += (ay / dist) * force * 0.6;
+            }
+
+            // damping & move
+            this.vx *= 0.985;
+            this.vy *= 0.985;
+            this.x += this.vx;
+            this.y += this.vy;
+
+            // wrap
+            if (this.x < -20) this.x = innerWidth + 20;
+            if (this.x > innerWidth + 20) this.x = -20;
+            if (this.y < -20) this.y = innerHeight + 20;
+            if (this.y > innerHeight + 20) this.y = -20;
+            this.life++;
+          }
+          draw(ctx, opacityMult = 1) {
+            // additive glow via radial gradient
+            const r = this.size * 2.8;
+            const g = ctx.createRadialGradient(
+              this.x,
+              this.y,
+              0,
+              this.x,
+              this.y,
+              r
+            );
+            const color = `hsl(${this.h}, 85%, 55%)`;
+            g.addColorStop(0, `hsla(${this.h},90%,65%,${0.25 * opacityMult})`);
+            g.addColorStop(
+              0.2,
+              `hsla(${this.h},85%,55%,${0.18 * opacityMult})`
+            );
+            g.addColorStop(
+              0.6,
+              `hsla(${this.h},70%,45%,${0.06 * opacityMult})`
+            );
+            g.addColorStop(1, `hsla(${this.h},60%,35%,0)`);
+            ctx.fillStyle = g;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
+            ctx.fill();
+
+            // core
+            ctx.fillStyle = `hsla(${this.h},95%,60%,${0.9 * opacityMult})`;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        let particles = [];
+        function populate(n) {
+          particles.length = 0;
+          for (let i = 0; i < n; i++) particles.push(new Particle());
+          document.getElementById("pc").textContent = particles.length;
+        }
+        populate(params.count);
+
+        // mouse / touch attractor
+        const attractor = {
+          x: innerWidth / 2,
+          y: innerHeight / 2,
+          distance: 9999,
+          active: false,
+        };
+        function updateAttractor(e) {
+          const rect = canvas.getBoundingClientRect();
+          attractor.x =
+            (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+          attractor.y =
+            (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+          attractor.active = true;
+        }
+        function endAttractor() {
+          attractor.active = false;
+          attractor.distance = 9999;
+        }
+        addEventListener("mousemove", (e) => {
+          updateAttractor(e);
+          attractor.distance = 0;
+        });
+        addEventListener("touchstart", (e) => {
+          updateAttractor(e);
+          attractor.distance = 0;
+        });
+        addEventListener(
+          "touchmove",
+          (e) => {
+            updateAttractor(e);
+            attractor.distance = 0;
+            e.preventDefault();
+          },
+          { passive: false }
+        );
+        addEventListener("mouseout", endAttractor);
+        addEventListener("touchend", endAttractor);
+
+        // keyboard
+        addEventListener("keydown", (e) => {
+          if (e.key === "+") {
+            params.count = Math.min(3000, params.count + 50);
+            populate(params.count);
+          }
+          if (e.key === "-") {
+            params.count = Math.max(50, params.count - 50);
+            populate(params.count);
+          }
+          if (e.code === "Space") {
+            // clear with flash
+            ctx.fillStyle = "rgba(5,8,20,1)";
+            ctx.fillRect(0, 0, innerWidth, innerHeight);
+          }
+        });
+
+        // FPS monitor
+        let last = performance.now();
+        let fps = 0;
+        let frameCount = 0;
+        let fpsTime = 0;
+
+        // animation loop
+        function loop(t) {
+          const dt = Math.min(60, t - last) / 1000;
+          last = t;
+
+          // fade to create trails
+          ctx.globalCompositeOperation = "source-over";
+          ctx.fillStyle = `rgba(5,8,20,${params.trailAlpha})`;
+          ctx.fillRect(0, 0, innerWidth, innerHeight);
+
+          // subtle vignette / noise layer
+          ctx.save();
+          ctx.globalCompositeOperation = "lighter";
+
+          // step and draw particles
+          // field uses a simple sinusoidal evolving function for angle
+          const time = t * 0.0006;
+          for (let i = 0; i < particles.length; i++) {
+            const p = particles[i];
+            const nx = p.x * params.fieldScale;
+            const ny = p.y * params.fieldScale;
+            // angle from combined sine/cos waves -> interesting flowing shapes
+            const angle = Math.atan2(
+              Math.sin(nx * 8 + time * 1.2 + Math.cos(ny * 2 - time * 0.6)),
+              Math.cos(ny * 6 - time * 1.1 + Math.sin(nx * 3 + time * 0.8))
+            );
+            // estimate distance for attractor
+            const ax = attractor.x - p.x;
+            const ay = attractor.y - p.y;
+            attractor.distance = Math.sqrt(ax * ax + ay * ay);
+            p.step(angle, attractor);
+            p.h = (p.h + 0.02) % 360; // slow hue drift
+            p.draw(ctx, 1);
+          }
+
+          // add subtle connective lines between nearby particles for depth (sparse)
+          ctx.globalCompositeOperation = "lighter";
+          ctx.lineWidth = 0.3;
+          for (let i = 0; i < 120; i += 6) {
+            const a = particles[(i * 7) % particles.length];
+            const b = particles[(i * 13 + 3) % particles.length];
+            const dx = a.x - b.x;
+            const dy = a.y - b.y;
+            const d = Math.sqrt(dx * dx + dy * dy);
+            if (d < 160) {
+              ctx.beginPath();
+              ctx.strokeStyle = `hsla(${(a.h + b.h) / 2},80%,60%,${
+                (1 - d / 160) * 0.06
+              })`;
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.stroke();
+            }
+          }
+
+          ctx.restore();
+
+          // small center glow
+          ctx.globalCompositeOperation = "lighter";
+          const cg = ctx.createRadialGradient(
+            innerWidth / 2,
+            innerHeight / 2,
+            0,
+            innerWidth / 2,
+            innerHeight / 2,
+            Math.max(innerWidth, innerHeight) * 0.7
+          );
+          cg.addColorStop(0, "rgba(6,13,30,0.02)");
+          cg.addColorStop(1, "rgba(6,13,30,0)");
+          ctx.fillStyle = cg;
+          ctx.fillRect(0, 0, innerWidth, innerHeight);
+
+          // FPS calc
+          frameCount++;
+          fpsTime += dt;
+          if (fpsTime >= 0.5) {
+            fps = Math.round(frameCount / fpsTime);
+            frameCount = 0;
+            fpsTime = 0;
+            document.getElementById("fps").textContent = fps;
+          }
+
+          requestAnimationFrame(loop);
+        }
+
+        // initial canvas fill
+        ctx.fillStyle = "rgba(5,8,20,1)";
+        ctx.fillRect(0, 0, innerWidth, innerHeight);
+        requestAnimationFrame(loop);
+
+        // responsiveness: repopulate on resize with scaled count
+        let resizeTimeout;
+        addEventListener("resize", () => {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(() => {
+            resize();
+            params.count = Math.min(
+              2000,
+              Math.max(120, Math.floor((innerWidth * innerHeight) / 4000))
+            );
+            populate(params.count);
+          }, 200);
+        });
+      })();
+    </script>
+  
+
+</body></html>
