@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Three.js Concept Lamborghini</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #111;
+      }
+      canvas {
+        display: block;
+      }
+      #info {
+        position: absolute;
+        top: 10px;
+        width: 100%;
+        text-align: center;
+        color: white;
+        font-family: "Segoe UI", sans-serif;
+        pointer-events: none;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 0.8rem;
+        z-index: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="info">Drag to Rotate &bull; Scroll to Zoom</div>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
+
+    <script type="module">
+      import * as THREE from "three";
+      import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+      import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUniformsLib.js";
+
+      // --- CONFIGURATION ---
+      const CAR_COLOR = 0xffcc00; // Giallo Midas (Lambo Yellow)
+      const WINDOW_COLOR = 0x111111;
+
+      // --- SETUP ---
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x111111);
+      scene.fog = new THREE.Fog(0x111111, 10, 50);
+
+      const camera = new THREE.PerspectiveCamera(
+        45,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        100
+      );
+      camera.position.set(5, 3, 6);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      document.body.appendChild(renderer.domElement);
+
+      // Initialize RectAreaLight
+      RectAreaLightUniformsLib.init();
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.maxPolarAngle = Math.PI / 2 - 0.05; // Don't go below ground
+
+      // --- LIGHTING (Dramatic Front-Left Setup) ---
+
+      // 1. Ambient (Dimmed for higher contrast)
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
+      scene.add(ambientLight);
+
+      // 2. Main Spot Light (Key Light)
+      const spotLight = new THREE.SpotLight(0xffffff, 300);
+
+      // POSITION CHANGED:
+      // x: -15 (Left side)
+      // y: 10  (Height)
+      // z: 10  (Front)
+      spotLight.position.set(-15, 10, 10);
+
+      spotLight.angle = Math.PI / 5;
+      spotLight.penumbra = 0.4;
+      spotLight.castShadow = true;
+      spotLight.shadow.bias = -0.0001;
+      spotLight.shadow.mapSize.width = 2048;
+      spotLight.shadow.mapSize.height = 2048;
+      scene.add(spotLight);
+
+      // 3. Strip Lights (Moved to create sexy reflections)
+
+      // Primary Reflection (White streak on the side)
+      const rectLight1 = new THREE.RectAreaLight(0xffffff, 10, 12, 0.5);
+      rectLight1.position.set(-10, 4, 0);
+      rectLight1.lookAt(0, 0, 0);
+      scene.add(rectLight1);
+
+      // Secondary Rim Light (Red glow from behind for a "Cyber" feel)
+      const rectLight2 = new THREE.RectAreaLight(0xff0000, 8, 10, 0.5);
+      rectLight2.position.set(8, 2, -8);
+      rectLight2.lookAt(0, 0, 0);
+      scene.add(rectLight2);
+
+      // --- MATERIALS ---
+      // Car Paint: High clearcoat for that "showroom" look
+      const bodyMaterial = new THREE.MeshPhysicalMaterial({
+        color: CAR_COLOR,
+        metalness: 0.6,
+        roughness: 0.2,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.03,
+        sheen: 0.5,
+      });
+
+      const glassMaterial = new THREE.MeshPhysicalMaterial({
+        color: WINDOW_COLOR,
+        metalness: 0.9,
+        roughness: 0.0,
+        transmission: 0.2, // Slight transparency
+        transparent: true,
+      });
+
+      const wheelMaterial = new THREE.MeshStandardMaterial({
+        color: 0x111111,
+        roughness: 0.8,
+      });
+
+      const rimMaterial = new THREE.MeshStandardMaterial({
+        color: 0xcccccc,
+        metalness: 0.9,
+        roughness: 0.1,
+      });
+
+      // --- BUILDING THE CAR (Procedural Geometry) ---
+      const carGroup = new THREE.Group();
+
+      // 1. Main Chassis (The Wedge)
+      const chassisGeom = new THREE.BoxGeometry(2, 0.5, 4.2);
+      // Modify vertices to create the wedge shape
+      const posAttribute = chassisGeom.attributes.position;
+      // Lower the front hood vertices
+      for (let i = 0; i < posAttribute.count; i++) {
+        const y = posAttribute.getY(i);
+        const z = posAttribute.getZ(i);
+
+        // Taper front
+        if (z > 1 && y > 0) {
+          posAttribute.setY(i, y - 0.3); // Slant nose down
+        }
+        // Lift rear
+        if (z < -1 && y > 0) {
+          posAttribute.setY(i, y + 0.2); // High tail
+        }
+      }
+      chassisGeom.computeVertexNormals();
+      const chassis = new THREE.Mesh(chassisGeom, bodyMaterial);
+      chassis.position.y = 0.6;
+      chassis.castShadow = true;
+      carGroup.add(chassis);
+
+      // 2. Cabin (The Roof)
+      const cabinGeom = new THREE.CylinderGeometry(0.8, 1.1, 1.8, 4);
+      // Rotate and scale to fit
+      cabinGeom.rotateY(Math.PI / 4);
+      cabinGeom.rotateX(Math.PI / 2);
+      cabinGeom.scale(1.2, 1, 0.6);
+      const cabin = new THREE.Mesh(cabinGeom, glassMaterial);
+      cabin.position.set(0, 1.1, 0.2);
+      carGroup.add(cabin);
+
+      // 3. Wheels
+      function createWheel(x, z) {
+        const wheelGroup = new THREE.Group();
+
+        // Tire
+        const tireGeom = new THREE.CylinderGeometry(0.35, 0.35, 0.4, 24);
+        tireGeom.rotateZ(Math.PI / 2);
+        const tire = new THREE.Mesh(tireGeom, wheelMaterial);
+        tire.castShadow = true;
+        wheelGroup.add(tire);
+
+        // Rim
+        const rimGeom = new THREE.CylinderGeometry(0.2, 0.2, 0.42, 10);
+        rimGeom.rotateZ(Math.PI / 2);
+        const rim = new THREE.Mesh(rimGeom, rimMaterial);
+        wheelGroup.add(rim);
+
+        wheelGroup.position.set(x, 0.35, z);
+        return wheelGroup;
+      }
+
+      carGroup.add(createWheel(1.1, 1.2)); // Front Left
+      carGroup.add(createWheel(-1.1, 1.2)); // Front Right
+      carGroup.add(createWheel(1.1, -1.2)); // Rear Left
+      carGroup.add(createWheel(-1.1, -1.2)); // Rear Right
+
+      // 4. Details (Headlights)
+      const lightGeom = new THREE.BoxGeometry(0.4, 0.1, 0.2);
+      const lightMat = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        emissive: 0xffffff,
+        emissiveIntensity: 5,
+      });
+
+      const leftLight = new THREE.Mesh(lightGeom, lightMat);
+      leftLight.position.set(0.6, 0.5, 2.0);
+      leftLight.rotation.y = -0.2;
+      carGroup.add(leftLight);
+
+      const rightLight = new THREE.Mesh(lightGeom, lightMat);
+      rightLight.position.set(-0.6, 0.5, 2.0);
+      rightLight.rotation.y = 0.2;
+      carGroup.add(rightLight);
+
+      // 5. Tail Lights
+      const tailLightGeom = new THREE.BoxGeometry(0.8, 0.1, 0.1);
+      const tailLightMat = new THREE.MeshStandardMaterial({
+        color: 0xff0000,
+        emissive: 0xff0000,
+        emissiveIntensity: 3,
+      });
+      const tailLight = new THREE.Mesh(tailLightGeom, tailLightMat);
+      tailLight.position.set(0, 0.8, -2.1);
+      carGroup.add(tailLight);
+
+      scene.add(carGroup);
+
+      // --- ENVIRONMENT ---
+
+      // Floor with Reflection
+      const floorGeom = new THREE.PlaneGeometry(50, 50);
+      const floorMat = new THREE.MeshStandardMaterial({
+        color: 0x050505,
+        metalness: 0.5,
+        roughness: 0.1,
+      });
+      const floor = new THREE.Mesh(floorGeom, floorMat);
+      floor.rotation.x = -Math.PI / 2;
+      floor.receiveShadow = true;
+      scene.add(floor);
+
+      // Grid Helper for Cyber look
+      const grid = new THREE.GridHelper(50, 50, 0x333333, 0x111111);
+      grid.position.y = 0.01;
+      scene.add(grid);
+
+      // --- ANIMATION LOOP ---
+      const clock = new THREE.Clock();
+
+      function animate() {
+        requestAnimationFrame(animate);
+
+        const time = clock.getElapsedTime();
+
+        // Slight floating hover effect
+        carGroup.position.y = Math.sin(time * 2) * 0.005;
+
+        // Auto-rotate camera slowly if user isn't interacting
+        // controls.autoRotate = true;
+
+        controls.update();
+        renderer.render(scene, camera);
+      }
+
+      // Handle Resize
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      animate();
+    </script>
+  </body>
+</html>
