@@ -3,7 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Satisfying Canvas Effects</title>
+    <title>Satisfying Canvas Effects - Interactive Visual Experiences</title>
+    <meta
+      name="description"
+      content="Explore mesmerizing interactive canvas animations including flowfield particles, liquid ripples, and more. Experience the beauty of responsive visual effects."
+    />
+    <meta
+      name="keywords"
+      content="canvas effects, interactive animations, particles, ripples, visual effects, javascript"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -11,109 +19,265 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .gradient-bg {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      }
+    </style>
   </head>
-  <body class="min-h-screen flex flex-col">
-    <header class="text-center py-12 px-4">
+  <body class="min-h-screen flex flex-col gradient-bg text-white">
+    <header class="text-center py-16 px-4">
       <h1
-        class="text-4xl md:text-5xl font-bold mb-5 text-center bg-clip-text text-transparent bg-gradient-to-r from-teal-300 to-violet-800"
+        class="text-5xl md:text-7xl font-bold mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-purple-300 to-pink-300"
       >
         Satisfying Canvas Effects
       </h1>
-      <p class="text-lg max-w-2xl mx-auto opacity-90">
-        Interactive and visually pleasing canvas animations that respond to your
-        interactions. Experience the beauty of particles and liquid ripples.
-      </p>
     </header>
 
-    <main class="flex-grow container mx-auto px-4 pb-16">
-      <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+    <main class="flex-grow container mx-auto px-4 pb-20">
+      <!-- Effects Grid -->
+      <div
+        class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16"
+      >
         <!-- Flowfield Particles Card -->
-        <div class="rounded-xl shadow-lg p-6 bg-white">
-          <div class="flex justify-between items-start mb-4">
-            <h2 class="text-xl font-semibold">Flowfield Particles</h2>
-            <span
-              class="text-xs font-medium px-2 py-1 rounded-full bg-indigo-500 text-white"
-              >Interactive</span
-            >
+        <div
+          class="rounded-2xl shadow-2xl p-8 bg-white/10 backdrop-blur-lg border border-white/20 card-hover"
+        >
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <h2 class="text-2xl font-bold text-white mb-2">
+                🌊 Flowfield Particles
+              </h2>
+              <div class="flex gap-2 flex-wrap">
+                <span
+                  class="text-xs font-medium px-3 py-1 rounded-full bg-indigo-500/80 text-white backdrop-blur-sm"
+                  >Interactive</span
+                >
+                <span
+                  class="text-xs font-medium px-3 py-1 rounded-full bg-purple-500/80 text-white backdrop-blur-sm"
+                  >Physics</span
+                >
+                <span
+                  class="text-xs font-medium px-3 py-1 rounded-full bg-green-600/80 text-white backdrop-blur-sm"
+                  >ChatGPT 5</span
+                >
+              </div>
+            </div>
           </div>
-          <p class="text-sm opacity-80 mb-5">
-            Thousands of particles flow through an evolving vector field,
-            creating mesmerizing patterns that respond to your mouse movements.
-          </p>
-          <div class="mb-5">
-            <h3 class="text-sm font-medium mb-2">Features:</h3>
-            <ul class="text-xs space-y-1">
-              <li class="flex items-center">
-                <span class="mr-2">•</span> Mouse attraction and repulsion
-              </li>
-              <li class="flex items-center">
-                <span class="mr-2">•</span> Dynamic color transitions
-              </li>
-              <li class="flex items-center">
-                <span class="mr-2">•</span> Particle connections
-              </li>
-              <li class="flex items-center">
-                <span class="mr-2">•</span> Adjustable parameters
-              </li>
-            </ul>
+          <div class="mb-6">
+            <h3 class="text-white font-semibold mb-3">✨ Advanced Features:</h3>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+              <div class="flex items-center text-white/80">
+                <span class="mr-2 text-cyan-300">▶</span> Mouse
+                attraction/repulsion
+              </div>
+              <div class="flex items-center text-white/80">
+                <span class="mr-2 text-cyan-300">▶</span> Dynamic color
+                transitions
+              </div>
+              <div class="flex items-center text-white/80">
+                <span class="mr-2 text-cyan-300">▶</span> Particle connections
+              </div>
+              <div class="flex items-center text-white/80">
+                <span class="mr-2 text-cyan-300">▶</span> Real-time parameters
+              </div>
+              <div class="flex items-center text-white/80">
+                <span class="mr-2 text-cyan-300">▶</span> Noise-based movement
+              </div>
+              <div class="flex items-center text-white/80">
+                <span class="mr-2 text-cyan-300">▶</span> Performance optimized
+              </div>
+            </div>
+          </div>
+          <div class="mb-6">
+            <h4 class="text-white/90 font-medium mb-2">🎮 Controls:</h4>
+            <p class="text-sm text-white/70">
+              Move your mouse to influence particle flow • Click and drag for
+              stronger effects
+            </p>
           </div>
           <a
             href="Flowfield-Particles.html"
-            class="text-sm font-medium text-gray-900 py-2 px-6 rounded-lg inline-block text-center border border-transparent bg-indigo-200 hover:bg-indigo-500 hover:text-white"
-            >Experience Effect</a
+            class="w-full text-center font-semibold text-white py-3 px-6 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+            >🚀 Launch Experience</a
           >
         </div>
 
         <!-- Liquid Ripple Effect Card -->
-        <div class="rounded-xl shadow-lg p-6 bg-white">
-          <div class="flex justify-between items-start mb-4">
-            <h2 class="text-xl font-semibold">Liquid Ripple Effect</h2>
-            <span
-              class="text-xs font-medium px-2 py-1 rounded-full bg-teal-500 text-white"
-              >Click Interaction</span
-            >
+        <div
+          class="rounded-2xl shadow-2xl p-8 bg-white/10 backdrop-blur-lg border border-white/20 card-hover"
+        >
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <h2 class="text-2xl font-bold text-white mb-2">
+                💧 Liquid Ripple Effect
+              </h2>
+              <div class="flex gap-2 flex-wrap">
+                <span
+                  class="text-xs font-medium px-3 py-1 rounded-full bg-teal-500/80 text-white backdrop-blur-sm"
+                  >Click Interactive</span
+                >
+                <span
+                  class="text-xs font-medium px-3 py-1 rounded-full bg-blue-500/80 text-white backdrop-blur-sm"
+                  >Fluid</span
+                >
+                <span
+                  class="text-xs font-medium px-3 py-1 rounded-full bg-green-600/80 text-white backdrop-blur-sm"
+                  >ChatGPT 5</span
+                >
+              </div>
+            </div>
           </div>
-          <p class="text-sm opacity-80 mb-5">
-            Create beautiful expanding ripples with each click. Watch as they
-            propagate and fade, creating a calming liquid-like effect.
-          </p>
-          <div class="mb-5">
-            <h3 class="text-sm font-medium mb-2">Features:</h3>
-            <ul class="text-xs space-y-1">
-              <li class="flex items-center">
-                <span class="mr-2">•</span> Click anywhere to create ripples
-              </li>
-              <li class="flex items-center">
-                <span class="mr-2">•</span> Smooth fade-out effect
-              </li>
-              <li class="flex items-center">
-                <span class="mr-2">•</span> Multiple simultaneous ripples
-              </li>
-              <li class="flex items-center">
-                <span class="mr-2">•</span> Responsive to window size
-              </li>
-            </ul>
+          <div class="mb-6">
+            <h3 class="text-white font-semibold mb-3">🌊 Fluid Features:</h3>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+              <div class="flex items-center text-white/80">
+                <span class="mr-2 text-cyan-300">▶</span> Realistic wave physics
+              </div>
+              <div class="flex items-center text-white/80">
+                <span class="mr-2 text-cyan-300">▶</span> Smooth fade animations
+              </div>
+              <div class="flex items-center text-white/80">
+                <span class="mr-2 text-cyan-300">▶</span> Multiple ripple layers
+              </div>
+              <div class="flex items-center text-white/80">
+                <span class="mr-2 text-cyan-300">▶</span> Responsive canvas
+              </div>
+              <div class="flex items-center text-white/80">
+                <span class="mr-2 text-cyan-300">▶</span> Wave interference
+              </div>
+              <div class="flex items-center text-white/80">
+                <span class="mr-2 text-cyan-300">▶</span> Calming visuals
+              </div>
+            </div>
+          </div>
+          <div class="mb-6">
+            <h4 class="text-white/90 font-medium mb-2">🎮 Controls:</h4>
+            <p class="text-sm text-white/70">
+              Click anywhere to create ripples • Multiple clicks create
+              overlapping waves
+            </p>
           </div>
           <a
             href="Liquid-Ripple-Effect.html"
-            class="text-sm font-medium text-gray-900 py-2 px-6 rounded-lg inline-block text-center border border-transparent bg-teal-200 hover:bg-teal-500 hover:text-white"
-            >Experience Effect</a
+            class="w-full text-center font-semibold text-white py-3 px-6 rounded-xl bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+            >🌊 Dive In</a
+          >
+        </div>
+
+        <!-- Hive Mind Simulator Card -->
+        <div
+          class="rounded-2xl shadow-2xl p-8 bg-white/10 backdrop-blur-lg border border-white/20 card-hover"
+        >
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <h2 class="text-2xl font-bold text-white mb-2">
+                🐝 Hive Mind Simulator
+              </h2>
+              <div class="flex gap-2 flex-wrap">
+                <span
+                  class="text-xs font-medium px-3 py-1 rounded-full bg-amber-500/80 text-white backdrop-blur-sm"
+                  >Simulation</span
+                >
+                <span
+                  class="text-xs font-medium px-3 py-1 rounded-full bg-orange-500/80 text-white backdrop-blur-sm"
+                  >AI Behavior</span
+                >
+                <span
+                  class="text-xs font-medium px-3 py-1 rounded-full bg-green-600/80 text-white backdrop-blur-sm"
+                  >Gemini 3 Pro</span
+                >
+              </div>
+            </div>
+          </div>
+          <div class="mb-6">
+            <h3 class="text-white font-semibold mb-3">
+              🏗️ Simulation Features:
+            </h3>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+              <div class="flex items-center text-white/80">
+                <span class="mr-2 text-amber-300">▶</span> Emergent hive
+                construction
+              </div>
+              <div class="flex items-center text-white/80">
+                <span class="mr-2 text-amber-300">▶</span> Intelligent bee
+                behavior
+              </div>
+              <div class="flex items-center text-white/80">
+                <span class="mr-2 text-amber-300">▶</span> Hexagonal cell
+                formation
+              </div>
+              <div class="flex items-center text-white/80">
+                <span class="mr-2 text-amber-300">▶</span> Resource management
+              </div>
+              <div class="flex items-center text-white/80">
+                <span class="mr-2 text-amber-300">▶</span> Colony size control
+              </div>
+              <div class="flex items-center text-white/80">
+                <span class="mr-2 text-amber-300">▶</span> Honey production
+              </div>
+            </div>
+          </div>
+          <div class="mb-6">
+            <h4 class="text-white/90 font-medium mb-2">🎮 Controls:</h4>
+            <p class="text-sm text-white/70">
+              Adjust colony size and resources • Watch autonomous construction
+              unfold
+            </p>
+          </div>
+          <a
+            href="Hive-Mind-Simulator.html"
+            class="w-full text-center font-semibold text-white py-3 px-6 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 transition-all duration-300 shadow-lg hover:shadow-xl"
+            >🐝 Enter the Hive</a
           >
         </div>
       </div>
     </main>
 
-    <footer class="text-center py-6 text-sm opacity-80">
-      <p>
-        Made by
-        <a
-          href="https://vikum.vercel.app/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="text-[#8be9fd] hover:underline"
-          >Vikum_K</a
-        >
-      </p>
+    <footer class="text-center py-12 px-4">
+      <div class="max-w-2xl mx-auto">
+        <div class="mb-6">
+          <h3 class="text-xl font-semibold text-white mb-3">
+            🚀 Open Source Project
+          </h3>
+          <p class="text-white/70 mb-4">
+            Explore the code, contribute, or create your own effects
+          </p>
+          <a
+            href="https://github.com/vikumkarunathilake/satisfying-canvas-effects"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center px-6 py-3 bg-white/10 hover:bg-white/20 rounded-xl text-white font-medium transition-all duration-300 backdrop-blur-sm border border-white/20"
+          >
+            <span class="mr-2">⭐</span> View on GitHub
+          </a>
+        </div>
+        <div class="border-t border-white/20 pt-6">
+          <p class="text-white/60">
+            Crafted with ❤️ by
+            <a
+              href="https://vikum.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-cyan-300 hover:text-cyan-200 font-medium transition-colors duration-300"
+              >Vikum Karunathilake</a
+            >
+          </p>
+          <p class="text-white/40 text-sm mt-2">
+            © 2024 • Built with vanilla JavaScript & HTML5 Canvas
+          </p>
+        </div>
+      </div>
     </footer>
   </body>
 </html>
